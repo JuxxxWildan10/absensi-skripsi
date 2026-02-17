@@ -188,9 +188,9 @@ const Kiosk: React.FC = () => {
 
             finishSubmit(student?.name || '', attendanceStatus, currentTime);
 
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error submitting attendance:', err);
-            alert('Gagal menyimpan presensi. Silakan coba lagi.');
+            alert(`Gagal menyimpan presensi: ${err.message || 'Error tidak diketahui'}`);
         } finally {
             setSubmitting(false);
         }
