@@ -231,6 +231,15 @@ const Dashboard: React.FC = () => {
                     const absentStudents = students.filter(s => !presentStudentIds.includes(s.id));
 
                     if (absentStudents.length > 0) {
+                        // Group absent students by class
+                        const absentByClass = classes.map(cls => {
+                            const classAbsentStudents = absentStudents.filter(s => s.classId === cls.id);
+                            return {
+                                class: cls,
+                                students: classAbsentStudents
+                            };
+                        }).filter(group => group.students.length > 0); // Only show classes with absent students
+
                         return (
                             <div className="glass-panel p-6 rounded-2xl border-2 border-red-200 bg-red-50">
                                 <div className="flex items-center gap-3 mb-4">
@@ -242,27 +251,39 @@ const Dashboard: React.FC = () => {
                                         <p className="text-sm text-red-600">Siswa berikut belum check-in hari ini (Melewati 08:00)</p>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {absentStudents.map(student => {
-                                        // const studentClass = classes.find(c => c.id === student.classId);
-                                        return (
-                                            <div key={student.id} className="bg-white p-4 rounded-xl border border-red-100 shadow-sm flex justify-between items-center">
-                                                <div>
-                                                    <p className="font-bold text-gray-800">{student.name}</p>
-                                                    <p className="text-sm text-gray-500">{student.nis}</p>
-                                                    <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                                                        <Smartphone className="w-3 h-3" />
-                                                        {student.parentPhone || 'No Phone'}
-                                                    </p>
-                                                </div>
-                                                <div className="flex flex-col items-end gap-2">
-                                                    <span className="inline-block px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-lg mb-1">
-                                                        Alpha
-                                                    </span>
-                                                </div>
+
+                                {/* Group by Class */}
+                                <div className="space-y-6">
+                                    {absentByClass.map(({ class: cls, students: classStudents }) => (
+                                        <div key={cls.id} className="bg-white/50 p-4 rounded-xl border border-red-200">
+                                            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-red-200">
+                                                <GraduationCap className="w-5 h-5 text-red-600" />
+                                                <h4 className="font-bold text-red-800">{cls.name}</h4>
+                                                <span className="ml-auto text-sm text-red-600 bg-red-100 px-2 py-1 rounded-lg">
+                                                    {classStudents.length} siswa
+                                                </span>
                                             </div>
-                                        );
-                                    })}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                {classStudents.map(student => (
+                                                    <div key={student.id} className="bg-white p-4 rounded-xl border border-red-100 shadow-sm flex justify-between items-center">
+                                                        <div>
+                                                            <p className="font-bold text-gray-800">{student.name}</p>
+                                                            <p className="text-sm text-gray-500">{student.nis}</p>
+                                                            <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                                                                <Smartphone className="w-3 h-3" />
+                                                                {student.parentPhone || 'No Phone'}
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex flex-col items-end gap-2">
+                                                            <span className="inline-block px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-lg mb-1">
+                                                                Alpha
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         );
