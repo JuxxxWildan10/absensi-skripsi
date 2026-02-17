@@ -57,11 +57,7 @@ function App() {
                                         <Classes />
                                     </AdminRoute>
                                 } />
-                                <Route path="students" element={
-                                    <AdminRoute>
-                                        <Students />
-                                    </AdminRoute>
-                                } />
+                                <Route path="students" element={<Students />} />
                                 <Route path="teachers" element={
                                     <AdminRoute>
                                         <Teachers />
