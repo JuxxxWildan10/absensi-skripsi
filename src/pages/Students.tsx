@@ -20,13 +20,20 @@ const Students: React.FC = () => {
     });
 
     const filteredStudents = useMemo(() => {
-        return students.filter(student => {
+        let filtered = students.filter(student => {
             const matchesSearch = student.name.toLowerCase().includes(search.toLowerCase()) ||
                 student.nis.includes(search);
             const matchesClass = filterClass === 'all' || student.classId === filterClass;
             return matchesSearch && matchesClass;
         });
-    }, [students, search, filterClass]);
+
+        // PRIVACY FILTER: If user is a homeroom teacher, only show their homeroom class students
+        if (user?.role === 'teacher' && user?.homeroomClassId) {
+            filtered = filtered.filter(s => s.classId === user.homeroomClassId);
+        }
+
+        return filtered;
+    }, [students, search, filterClass, user]);
 
     const handleAddStudent = (e: React.FormEvent) => {
         e.preventDefault();
