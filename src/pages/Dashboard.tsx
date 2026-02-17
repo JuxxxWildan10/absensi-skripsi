@@ -232,13 +232,23 @@ const Dashboard: React.FC = () => {
 
                     if (absentStudents.length > 0) {
                         // Group absent students by class
-                        const absentByClass = classes.map(cls => {
+                        let absentByClass = classes.map(cls => {
                             const classAbsentStudents = absentStudents.filter(s => s.classId === cls.id);
                             return {
                                 class: cls,
                                 students: classAbsentStudents
                             };
                         }).filter(group => group.students.length > 0); // Only show classes with absent students
+
+                        // PRIVACY FILTER: If user is a homeroom teacher (wali kelas), only show their homeroom class
+                        if (user?.role === 'teacher' && user?.homeroomClassId) {
+                            absentByClass = absentByClass.filter(group => group.class.id === user.homeroomClassId);
+                        }
+
+                        // If after filtering, no absent students remain (e.g., homeroom teacher with no absent students in their class)
+                        if (absentByClass.length === 0) {
+                            return null;
+                        }
 
                         return (
                             <div className="glass-panel p-6 rounded-2xl border-2 border-red-200 bg-red-50">
