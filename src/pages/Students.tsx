@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Trash2, Search } from 'lucide-react';
+import { Plus, Trash2, Search, GraduationCap } from 'lucide-react';
 
 const Students: React.FC = () => {
     const { students, classes, addStudent, deleteStudent } = useData();
@@ -42,8 +42,6 @@ const Students: React.FC = () => {
         setIsModalOpen(false);
     };
 
-    const getClassName = (id: string) => classes.find(c => c.id === id)?.name || 'Unknown';
-
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -58,11 +56,6 @@ const Students: React.FC = () => {
                     <Plus className="w-4 h-4" />
                     Tambah Siswa
                 </button>
-            </div>
-
-            {/* DEBUG INFO - REMOVE LATER */}
-            <div className="bg-yellow-100 p-2 text-xs rounded mb-4">
-                Debug: Role={user?.role}, HR_ID={user?.homeroomClassId || 'None'}
             </div>
 
             {/* Filters */}
@@ -89,69 +82,89 @@ const Students: React.FC = () => {
                 </select>
             </div>
 
-            {/* Table */}
-            <div className="glass-panel rounded-2xl overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-gray-50/50 text-gray-600 font-semibold text-sm">
-                            <tr>
-                                <th className="p-4">NIS</th>
-                                <th className="p-4">Nama Siswa</th>
-                                <th className="p-4">Jenis Kelamin</th>
-                                <th className="p-4">No. HP Ortu</th>
-                                <th className="p-4">Kelas</th>
-                                <th className="p-4 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {filteredStudents.length > 0 ? filteredStudents.map(student => (
-                                <tr key={student.id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="p-4 font-mono text-sm text-gray-500">{student.nis}</td>
-                                    <td className="p-4 font-medium text-gray-900 flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
-                                            {student.name.charAt(0)}
-                                        </div>
-                                        {student.name}
-                                    </td>
-                                    <td className="p-4 text-gray-600">{student.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</td>
-                                    <td className="p-4 text-gray-600 font-mono text-sm">
-                                        {(() => {
-                                            if (!student.parentPhone) return '-';
-                                            // Debugging Privacy Logic
-                                            if (user?.role === 'admin') return student.parentPhone;
+            {/* Grouped by Class */}
+            <div className="space-y-6">
+                {(() => {
+                    // Group students by class
+                    const studentsByClass = classes.map(cls => {
+                        const classStudents = filteredStudents.filter(s => s.classId === cls.id);
+                        return {
+                            class: cls,
+                            students: classStudents
+                        };
+                    }).filter(group => group.students.length > 0);
 
-                                            const isHomeroom = user?.role === 'teacher' && user.homeroomClassId === student.classId;
+                    if (studentsByClass.length === 0) {
+                        return (
+                            <div className="glass-panel p-8 rounded-2xl text-center text-gray-400">
+                                Tidak ada data siswa ditemukan
+                            </div>
+                        );
+                    }
 
-                                            // console.log(`User: ${user?.username} (${user?.role}), HR: ${user?.homeroomClassId}, StudentClass: ${student.classId}, Match: ${isHomeroom}`);
+                    return studentsByClass.map(({ class: cls, students: classStudents }) => (
+                        <div key={cls.id} className="glass-panel rounded-2xl overflow-hidden">
+                            {/* Class Header */}
+                            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-white/20 rounded-lg">
+                                        <GraduationCap className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-white text-lg">{cls.name}</h3>
+                                        <p className="text-white/80 text-sm">{classStudents.length} siswa</p>
+                                    </div>
+                                </div>
+                            </div>
 
-                                            if (isHomeroom) return student.parentPhone;
-                                            return '******'; // Masked for non-homeroom teachers
-                                        })()}
-                                    </td>
-                                    <td className="p-4 text-gray-600">
-                                        <span className="ox-2 py-1 px-2 bg-gray-100 rounded-lg text-xs font-medium">
-                                            {getClassName(student.classId)}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        <button
-                                            onClick={() => { if (confirm('Hapus siswa?')) deleteStudent(student.id) }}
-                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            )) : (
-                                <tr>
-                                    <td colSpan={5} className="p-8 text-center text-gray-400">
-                                        Tidak ada data siswa ditemukan
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                            {/* Table */}
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="bg-gray-50/50 text-gray-600 font-semibold text-sm">
+                                        <tr>
+                                            <th className="p-4">NIS</th>
+                                            <th className="p-4">Nama Siswa</th>
+                                            <th className="p-4">Jenis Kelamin</th>
+                                            <th className="p-4">No. HP Ortu</th>
+                                            <th className="p-4 text-right">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {classStudents.map(student => (
+                                            <tr key={student.id} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="p-4 font-mono text-sm text-gray-500">{student.nis}</td>
+                                                <td className="p-4 font-medium text-gray-900 flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
+                                                        {student.name.charAt(0)}
+                                                    </div>
+                                                    {student.name}
+                                                </td>
+                                                <td className="p-4 text-gray-600">{student.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</td>
+                                                <td className="p-4 text-gray-600 font-mono text-sm">
+                                                    {(() => {
+                                                        if (!student.parentPhone) return '-';
+                                                        if (user?.role === 'admin') return student.parentPhone;
+                                                        const isHomeroom = user?.role === 'teacher' && user.homeroomClassId === student.classId;
+                                                        if (isHomeroom) return student.parentPhone;
+                                                        return '******';
+                                                    })()}
+                                                </td>
+                                                <td className="p-4 text-right">
+                                                    <button
+                                                        onClick={() => { if (confirm('Hapus siswa?')) deleteStudent(student.id) }}
+                                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ));
+                })()}
             </div>
 
             {/* Modal */}
