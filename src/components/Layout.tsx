@@ -25,9 +25,24 @@ const Layout: React.FC = () => {
         { to: '/reports', icon: FileBarChart, label: 'Laporan', roles: ['admin', 'teacher'] },
     ];
 
-    const filteredNavItems = navItems.filter(item =>
+    // Add "Kelas Saya" menu item for homeroom teachers
+    const homeroomMenuItem = user?.role === 'teacher' && user?.homeroomClassId ? {
+        to: '/students',
+        icon: Users,
+        label: 'Kelas Saya',
+        roles: ['teacher'],
+        isHomeroomMenu: true
+    } : null;
+
+    let filteredNavItems = navItems.filter(item =>
         user?.role && item.roles.includes(user.role)
     );
+
+    // Insert "Kelas Saya" after "Absensi" for homeroom teachers
+    if (homeroomMenuItem) {
+        const absensiIndex = filteredNavItems.findIndex(item => item.to === '/attendance');
+        filteredNavItems.splice(absensiIndex + 1, 0, homeroomMenuItem);
+    }
 
     // Close sidebar when route changes
     React.useEffect(() => {
