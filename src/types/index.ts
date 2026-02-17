@@ -4,6 +4,7 @@ export interface Student {
     nis: string;
     classId: string;
     gender: 'L' | 'P';
+    parentPhone?: string; // Format: 628xxx
 }
 
 export interface Class {
@@ -17,6 +18,7 @@ export interface Teacher {
     username: string;
     password?: string; // Optional for display, required for creation/login
     subject: string; // Mata Pelajaran
+    homeroomClassId?: string; // Wali Kelas dari kelas mana (optional)
 }
 
 export interface Schedule {
@@ -34,7 +36,7 @@ export interface AttendanceRecord {
     studentId: string;
     date: string; // YYYY-MM-DD
     subject: string; // New field for specific subject attendance
-    status: 'present' | 'absent' | 'late' | 'sick';
+    status: 'present' | 'alpha' | 'late' | 'sick' | 'permission';
 }
 
 export interface User {
@@ -43,4 +45,5 @@ export interface User {
     username: string;
     role: 'teacher' | 'admin';
     subject?: string; // If teacher
+    homeroomClassId?: string; // If wali kelas
 }

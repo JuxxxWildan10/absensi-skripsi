@@ -183,7 +183,7 @@ const Dashboard: React.FC = () => {
                                 present: dayAttendance.filter(a => a.status === 'present').length,
                                 sick: dayAttendance.filter(a => a.status === 'sick').length,
                                 late: dayAttendance.filter(a => a.status === 'late').length,
-                                absent: dayAttendance.filter(a => a.status === 'absent').length,
+                                alpha: dayAttendance.filter(a => a.status === 'alpha').length,
                             };
                         });
 
@@ -199,7 +199,7 @@ const Dashboard: React.FC = () => {
                             { name: 'Hadir', value: attendance.filter(a => a.status === 'present').length },
                             { name: 'Sakit', value: attendance.filter(a => a.status === 'sick').length },
                             { name: 'Terlambat', value: attendance.filter(a => a.status === 'late').length },
-                            { name: 'Alpa', value: attendance.filter(a => a.status === 'absent').length },
+                            { name: 'Alpa', value: attendance.filter(a => a.status === 'alpha').length },
                         ].filter(item => item.value > 0); // Only show non-zero values
 
                         return pieData.length > 0 ? (
@@ -213,6 +213,63 @@ const Dashboard: React.FC = () => {
                 </div>
 
             </div>
+
+            {/* Auto-Alpha List (Only shows after 08:00) */}
+            {(() => {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const isPast8AM = currentHour >= 8;
+
+                // Debug/Demo: Uncomment next line to force show it for testing even if before 8 AM
+                // const isPast8AM = true; 
+
+                if (isPast8AM) {
+                    const presentStudentIds = attendance
+                        .filter(a => a.date === today && (a.status === 'present' || a.status === 'late' || a.status === 'sick' || a.status === 'permission'))
+                        .map(a => a.studentId);
+
+                    const absentStudents = students.filter(s => !presentStudentIds.includes(s.id));
+
+                    if (absentStudents.length > 0) {
+                        return (
+                            <div className="glass-panel p-6 rounded-2xl border-2 border-red-200 bg-red-50">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2 bg-red-500 rounded-lg">
+                                        <Users className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-red-800">Siswa Belum Hadir / Alpha (Auto)</h3>
+                                        <p className="text-sm text-red-600">Siswa berikut belum check-in hari ini (Melewati 08:00)</p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {absentStudents.map(student => {
+                                        // const studentClass = classes.find(c => c.id === student.classId);
+                                        return (
+                                            <div key={student.id} className="bg-white p-4 rounded-xl border border-red-100 shadow-sm flex justify-between items-center">
+                                                <div>
+                                                    <p className="font-bold text-gray-800">{student.name}</p>
+                                                    <p className="text-sm text-gray-500">{student.nis}</p>
+                                                    <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                                                        <Smartphone className="w-3 h-3" />
+                                                        {student.parentPhone || 'No Phone'}
+                                                    </p>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-2">
+                                                    <span className="inline-block px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-lg mb-1">
+                                                        Alpha
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    }
+                }
+                return null;
+            })()}
         </div>
     );
 };

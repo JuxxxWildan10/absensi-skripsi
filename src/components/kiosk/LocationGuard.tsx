@@ -60,8 +60,8 @@ const LocationGuard: React.FC<LocationGuardProps> = ({
             },
             {
                 enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
+                timeout: 15000,
+                maximumAge: 5000
             }
         );
     }, [schoolLat, schoolLng, maxDistanceKm, onLocationVerified]);

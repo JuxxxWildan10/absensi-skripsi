@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, Teacher } from '../types';
+import { User } from '../types';
 import { supabase } from '../lib/supabase';
 
 interface AuthContextType {
@@ -41,7 +41,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name: data.name,
             username: data.username,
             role: data.role as 'admin' | 'teacher',
-            subject: data.subject
+            subject: data.subject,
+            homeroomClassId: data.homeroom_class_id // Map DB column to frontend prop
         };
 
         setUser(loggedInUser);

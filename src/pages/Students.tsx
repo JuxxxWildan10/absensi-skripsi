@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '../contexts/DataContext';
-import { Plus, Trash2, Search, User } from 'lucide-react';
-import { Student } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { Plus, Trash2, Search } from 'lucide-react';
 
 const Students: React.FC = () => {
     const { students, classes, addStudent, deleteStudent } = useData();
+    const { user } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [filterClass, setFilterClass] = useState('all');
@@ -14,7 +15,8 @@ const Students: React.FC = () => {
         name: '',
         nis: '',
         classId: '',
-        gender: 'L' as 'L' | 'P'
+        gender: 'L' as 'L' | 'P',
+        parentPhone: ''
     });
 
     const filteredStudents = useMemo(() => {
@@ -36,7 +38,7 @@ const Students: React.FC = () => {
             id: crypto.randomUUID(),
             ...formData
         });
-        setFormData({ name: '', nis: '', classId: '', gender: 'L' });
+        setFormData({ name: '', nis: '', classId: '', gender: 'L', parentPhone: '' });
         setIsModalOpen(false);
     };
 
@@ -56,6 +58,11 @@ const Students: React.FC = () => {
                     <Plus className="w-4 h-4" />
                     Tambah Siswa
                 </button>
+            </div>
+
+            {/* DEBUG INFO - REMOVE LATER */}
+            <div className="bg-yellow-100 p-2 text-xs rounded mb-4">
+                Debug: Role={user?.role}, HR_ID={user?.homeroomClassId || 'None'}
             </div>
 
             {/* Filters */}
@@ -91,6 +98,7 @@ const Students: React.FC = () => {
                                 <th className="p-4">NIS</th>
                                 <th className="p-4">Nama Siswa</th>
                                 <th className="p-4">Jenis Kelamin</th>
+                                <th className="p-4">No. HP Ortu</th>
                                 <th className="p-4">Kelas</th>
                                 <th className="p-4 text-right">Aksi</th>
                             </tr>
@@ -106,6 +114,20 @@ const Students: React.FC = () => {
                                         {student.name}
                                     </td>
                                     <td className="p-4 text-gray-600">{student.gender === 'L' ? 'Laki-laki' : 'Perempuan'}</td>
+                                    <td className="p-4 text-gray-600 font-mono text-sm">
+                                        {(() => {
+                                            if (!student.parentPhone) return '-';
+                                            // Debugging Privacy Logic
+                                            if (user?.role === 'admin') return student.parentPhone;
+
+                                            const isHomeroom = user?.role === 'teacher' && user.homeroomClassId === student.classId;
+
+                                            // console.log(`User: ${user?.username} (${user?.role}), HR: ${user?.homeroomClassId}, StudentClass: ${student.classId}, Match: ${isHomeroom}`);
+
+                                            if (isHomeroom) return student.parentPhone;
+                                            return '******'; // Masked for non-homeroom teachers
+                                        })()}
+                                    </td>
                                     <td className="p-4 text-gray-600">
                                         <span className="ox-2 py-1 px-2 bg-gray-100 rounded-lg text-xs font-medium">
                                             {getClassName(student.classId)}
@@ -162,15 +184,24 @@ const Students: React.FC = () => {
                                     </select>
                                 </div>
                             </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">No. HP Ortu</label>
+                                <input
+                                    type="tel"
+                                    className="w-full border p-2 rounded-lg"
+                                    value={formData.parentPhone}
+                                    onChange={e => setFormData({ ...formData, parentPhone: e.target.value })}
+                                />
+                            </div>
                             <div className="flex justify-end gap-3 pt-4">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>
                                 <button type="submit" className="btn-primary">Simpan</button>
                             </div>
                         </form>
                     </div>
-                </div>
+                </div >
             )}
-        </div>
+        </div >
     );
 };
 

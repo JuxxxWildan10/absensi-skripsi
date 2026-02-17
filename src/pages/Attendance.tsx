@@ -15,7 +15,7 @@ const Attendance: React.FC = () => {
     const [selectedClassId, setSelectedClassId] = useState<string>('');
     const [selectedSubject, setSelectedSubject] = useState<string>('');
 
-    const [records, setRecords] = useState<Record<string, 'present' | 'absent' | 'late' | 'sick'>>({});
+    const [records, setRecords] = useState<Record<string, 'present' | 'alpha' | 'late' | 'sick' | 'permission'>>({});
 
     // Auto select first class
     useEffect(() => {
@@ -63,7 +63,7 @@ const Attendance: React.FC = () => {
         setRecords(newRecordsState);
     }, [selectedDate, selectedClassId, selectedSubject, currentClassStudents, attendance]);
 
-    const handleStatusChange = (studentId: string, status: 'present' | 'absent' | 'late' | 'sick') => {
+    const handleStatusChange = (studentId: string, status: 'present' | 'alpha' | 'late' | 'sick' | 'permission') => {
         if (isAdmin) return;
         setRecords(prev => ({
             ...prev,
@@ -191,9 +191,10 @@ const Attendance: React.FC = () => {
                                                     {/* Reuse existing logic for buttons */}
                                                     {[
                                                         { value: 'present', label: 'Hadir', color: 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200' },
-                                                        { value: 'absent', label: 'Alpa', color: 'bg-red-100 text-red-700 border-red-200 hover:bg-red-200' },
+                                                        { value: 'alpha', label: 'Alpa', color: 'bg-red-100 text-red-700 border-red-200 hover:bg-red-200' },
                                                         { value: 'late', label: 'Terlambat', color: 'bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-200' },
-                                                        { value: 'sick', label: 'Sakit', color: 'bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200' }
+                                                        { value: 'sick', label: 'Sakit', color: 'bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200' },
+                                                        { value: 'permission', label: 'Izin', color: 'bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200' }
                                                     ].map(opt => (
                                                         <button
                                                             key={opt.value}

@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useData } from '../contexts/DataContext';
-import { Plus, Trash2, UserPlus, Key } from 'lucide-react';
+import { Plus, Trash2, UserPlus } from 'lucide-react';
 
 const Teachers: React.FC = () => {
-    const { teachers, addTeacher, deleteTeacher } = useData();
+    const { teachers, classes, addTeacher, deleteTeacher } = useData();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         username: '',
         password: '',
-        subject: ''
+        subject: '',
+        homeroomClassId: ''
     });
 
     const handleAddTeacher = (e: React.FormEvent) => {
@@ -20,7 +21,7 @@ const Teachers: React.FC = () => {
             id: crypto.randomUUID(),
             ...formData
         });
-        setFormData({ name: '', username: '', password: '', subject: '' });
+        setFormData({ name: '', username: '', password: '', subject: '', homeroomClassId: '' });
         setIsModalOpen(false);
     };
 
@@ -65,6 +66,13 @@ const Teachers: React.FC = () => {
                                         <span className="ox-2 py-1 px-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-medium border border-indigo-100">
                                             {teacher.subject}
                                         </span>
+                                        {teacher.homeroomClassId && (
+                                            <div className="mt-1 text-xs text-gray-500">
+                                                Wali Kelas: <span className="font-semibold text-gray-700">
+                                                    {classes.find(c => c.id === teacher.homeroomClassId)?.name || 'Unknown'}
+                                                </span>
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="p-4 text-right">
                                         <button
@@ -141,6 +149,19 @@ const Teachers: React.FC = () => {
                                         onChange={e => setFormData({ ...formData, password: e.target.value })}
                                     />
                                 </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Wali Kelas (Opsional)</label>
+                                <select
+                                    className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    value={formData.homeroomClassId}
+                                    onChange={e => setFormData({ ...formData, homeroomClassId: e.target.value })}
+                                >
+                                    <option value="">-- Bukan Wali Kelas --</option>
+                                    {classes.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="flex justify-end gap-3 pt-4">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Batal</button>

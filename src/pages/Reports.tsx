@@ -18,7 +18,8 @@ const Reports: React.FC = () => {
 
         const counts = {
             present: 0,
-            absent: 0,
+            alpha: 0,
+            permission: 0,
             late: 0,
             sick: 0
         };
@@ -73,7 +74,8 @@ const Reports: React.FC = () => {
         { label: 'Hadir', value: reportData.present, color: 'bg-green-500', text: 'text-green-600' },
         { label: 'Sakit', value: reportData.sick, color: 'bg-blue-500', text: 'text-blue-600' },
         { label: 'Terlambat', value: reportData.late, color: 'bg-orange-500', text: 'text-orange-600' },
-        { label: 'Alpa', value: reportData.absent, color: 'bg-red-500', text: 'text-red-600' },
+        { label: 'Alpa', value: reportData.alpha, color: 'bg-red-500', text: 'text-red-600' },
+        { label: 'Izin', value: reportData.permission, color: 'bg-purple-500', text: 'text-purple-600' },
     ];
 
     const total = Object.values(reportData).reduce((a, b) => a + b, 0);

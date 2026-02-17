@@ -5,7 +5,7 @@ interface AttendanceChartProps {
     data: Array<{
         date: string;
         present: number;
-        absent: number;
+        alpha: number;
         late: number;
         sick: number;
     }>;
@@ -36,7 +36,7 @@ export const AttendanceBarChart: React.FC<AttendanceChartProps> = ({ data }) => 
                 <Bar dataKey="present" name="Hadir" fill={COLORS.present} radius={[8, 8, 0, 0]} />
                 <Bar dataKey="sick" name="Sakit" fill={COLORS.sick} radius={[8, 8, 0, 0]} />
                 <Bar dataKey="late" name="Terlambat" fill={COLORS.late} radius={[8, 8, 0, 0]} />
-                <Bar dataKey="absent" name="Alpa" fill={COLORS.absent} radius={[8, 8, 0, 0]} />
+                <Bar dataKey="alpha" name="Alpa" fill="#ef4444" radius={[4, 4, 0, 0]} />
             </BarChart>
         </ResponsiveContainer>
     );

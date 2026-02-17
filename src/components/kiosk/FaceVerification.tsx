@@ -1,16 +1,25 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Camera, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { Camera, CheckCircle, AlertCircle, Loader, Smile, Meh } from 'lucide-react';
 import * as faceapi from 'face-api.js';
 
 interface FaceVerificationProps {
     onFaceDetected: (detected: boolean) => void;
 }
 
+type ChallengeType = 'happy' | 'surprised' | 'neutral';
+
+const CHALLENGES: { type: ChallengeType; label: string; icon: React.ReactNode }[] = [
+    { type: 'happy', label: 'Tersenyum Lebar 😀', icon: <Smile className="w-8 h-8 text-yellow-400" /> },
+    { type: 'surprised', label: 'Terkejut 😮', icon: <span className="text-3xl">😮</span> },
+    { type: 'neutral', label: 'Wajah Datar 😐', icon: <Meh className="w-8 h-8 text-gray-400" /> }
+];
+
 const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [status, setStatus] = useState<'loading' | 'ready' | 'detecting' | 'detected' | 'error'>('loading');
     const [error, setError] = useState<string>('');
     const [modelsLoaded, setModelsLoaded] = useState(false);
+    const [currentChallenge, setCurrentChallenge] = useState<typeof CHALLENGES[0]>(CHALLENGES[0]);
 
     // Load face-api models
     useEffect(() => {
@@ -26,10 +35,13 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) =
                 ]);
 
                 setModelsLoaded(true);
+                // Select random challenge on load
+                setCurrentChallenge(CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)]);
                 setStatus('ready');
             } catch (err) {
                 console.error('Error loading models:', err);
-                setError('Gagal memuat model AI. Pastikan file model tersedia di /public/models');
+                console.error('Error loading models:', err);
+                setError('Gagal memuat model AI. Periksa koneksi internet atau refresh.');
                 setStatus('error');
             }
         };
@@ -45,8 +57,9 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) =
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        width: 640,
-                        height: 480
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user' // Prioritize front camera on mobile
                     }
                 });
 
@@ -55,7 +68,8 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) =
                 }
             } catch (err) {
                 console.error('Error accessing camera:', err);
-                setError('Gagal mengakses kamera. Pastikan izin kamera telah diberikan');
+                console.error('Error accessing camera:', err);
+                setError('Gagal mengakses kamera. Izinkan akses kamera di browser Anda.');
                 setStatus('error');
             }
         };
@@ -76,6 +90,7 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) =
         if (!videoRef.current || status === 'detecting') return;
 
         setStatus('detecting');
+        setError('');
 
         try {
             const detections = await faceapi.detectAllFaces(
@@ -84,16 +99,25 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) =
             ).withFaceLandmarks().withFaceExpressions(); // Enable expressions
 
             if (detections.length > 0) {
-                // Liveness Detection: Check for smile
+                // Liveness Detection: Check for specific expression
                 const detection = detections[0];
                 const expressions = detection.expressions;
 
-                if (expressions && expressions.happy > 0.7) {
+                let isMatch = false;
+                const THRESHOLD = 0.5;
+
+                if (expressions) {
+                    if (currentChallenge.type === 'happy' && expressions.happy > THRESHOLD) isMatch = true;
+                    else if (currentChallenge.type === 'surprised' && expressions.surprised > THRESHOLD) isMatch = true;
+                    else if (currentChallenge.type === 'neutral' && expressions.neutral > THRESHOLD) isMatch = true;
+                }
+
+                if (isMatch) {
                     setStatus('detected');
                     onFaceDetected(true);
                 } else {
                     setStatus('ready');
-                    setError('Wajah terdeteksi. Silakan TERSENYUM untuk verifikasi!');
+                    setError(`Ekspresi salah! Mohon tunjukkan ekspresi: ${currentChallenge.label}`);
                     onFaceDetected(false);
                 }
             } else {
@@ -132,50 +156,61 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) =
     }
 
     return (
-        <div className="space-y-4">
-            <div className="relative rounded-xl overflow-hidden bg-black">
+        <div className="space-y-6">
+            <div className="flex flex-col items-center gap-2 p-4 bg-white/20 rounded-xl border border-white/30 text-white">
+                <p className="font-medium text-sm text-white/80">Tantangan Ekspresi:</p>
+                <div className="flex items-center gap-3">
+                    {currentChallenge.icon}
+                    <span className="text-xl font-bold">{currentChallenge.label}</span>
+                </div>
+            </div>
+
+            <div className="relative rounded-xl overflow-hidden bg-black shadow-2xl border-4 border-white/20">
                 <video
                     ref={videoRef}
                     autoPlay
                     muted
                     playsInline
-                    className="w-full h-auto"
+                    className="w-full h-auto transform scale-x-[-1]" // Mirror effect
                     onLoadedMetadata={() => setStatus('ready')}
                 />
                 {status === 'detecting' && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-10">
                         <Loader className="w-12 h-12 text-white animate-spin" />
                     </div>
                 )}
-                {/* Face Box Overlay (Optional) */}
-                <div className="absolute bottom-4 left-0 right-0 text-center">
-                    <p className="text-white text-sm bg-black/50 py-1 px-3 rounded-full inline-block">
-                        {status === 'ready' ? 'Silakan Tersenyum 🙂' : status === 'detecting' ? 'Mengecek...' : 'Berhasil!'}
+
+                {/* Overlay Instructions */}
+                <div className="absolute bottom-4 left-0 right-0 text-center z-20">
+                    <p className="text-white text-sm bg-black/60 py-2 px-4 rounded-full inline-block backdrop-blur-md">
+                        {status === 'ready' ? `Tunjukkan ekspresi: ${currentChallenge.label}` : status === 'detecting' ? 'Menganalisis...' : 'Berhasil!'}
                     </p>
                 </div>
             </div>
 
             {status === 'detected' ? (
-                <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl animate-scale-in">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
+                <div className="flex items-center gap-3 p-4 bg-green-500/20 border border-green-400 rounded-xl animate-scale-in">
+                    <CheckCircle className="w-6 h-6 text-green-400" />
                     <div>
-                        <p className="text-sm font-medium text-green-800">✓ Verifikasi Berhasil</p>
-                        <p className="text-xs text-green-600">Liveness confirmed (Smile detected)</p>
+                        <p className="text-base font-bold text-white">Verifikasi Berhasil</p>
+                        <p className="text-sm text-white/80">Ekspresi sesuai dengan tantangan</p>
                     </div>
                 </div>
             ) : (
                 <button
                     onClick={handleDetectFace}
                     disabled={status === 'detecting'}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-4 bg-white text-indigo-600 rounded-xl font-bold hover:bg-gray-100 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                 >
                     <Camera className="w-5 h-5" />
-                    {status === 'detecting' ? 'Mendeteksi Ekspresi...' : 'Verifikasi (Tersenyum)'}
+                    {status === 'detecting' ? 'Mendeteksi...' : 'Ambil Foto & Verifikasi'}
                 </button>
             )}
 
             {error && (
-                <p className="text-xs text-red-600 text-center">{error}</p>
+                <div className="bg-red-500/20 border border-red-500/50 p-3 rounded-xl animate-shake">
+                    <p className="text-sm text-center text-white font-medium">{error}</p>
+                </div>
             )}
         </div>
     );

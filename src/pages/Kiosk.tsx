@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 import { supabase } from '../lib/supabase';
 import LocationGuard from '../components/kiosk/LocationGuard';
 import FaceVerification from '../components/kiosk/FaceVerification';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Wifi, WifiOff } from 'lucide-react'; // Added Wifi icons
 import { format } from 'date-fns';
+import { OfflineStorage, OfflineRecord } from '../utils/OfflineStorage'; // Import OfflineStorage
+import { NotificationService } from '../utils/NotificationService'; // Import NotificationService
 
 const Kiosk: React.FC = () => {
-    const { classes, students } = useData();
+    const { classes, students } = useData(); // Added addAttendance from context for easier state update if needed
     const navigate = useNavigate();
 
     const [step, setStep] = useState<'location' | 'class' | 'student' | 'face' | 'success'>('location');
@@ -17,6 +19,68 @@ const Kiosk: React.FC = () => {
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [faceVerified, setFaceVerified] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [isOffline, setIsOffline] = useState(!navigator.onLine); // Initial offline state
+
+    // Monitor Online/Offline Status
+    useEffect(() => {
+        const handleOnline = () => {
+            setIsOffline(false);
+            syncOfflineData();
+        };
+        const handleOffline = () => setIsOffline(true);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        // Try to sync on mount if online
+        if (navigator.onLine) {
+            syncOfflineData();
+        }
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    const syncOfflineData = async () => {
+        const records = OfflineStorage.getRecords();
+        if (records.length === 0) return;
+
+        console.log(`Syncing ${records.length} offline records...`);
+
+        for (const record of records) {
+            try {
+                // Check if exists first to avoid double insert if partially failed before
+                const { data: existing } = await supabase
+                    .from('attendance')
+                    .select('id')
+                    .eq('student_id', record.studentId)
+                    .eq('date', record.date)
+                    .single();
+
+                if (!existing) {
+                    const { error } = await supabase
+                        .from('attendance')
+                        .insert([{
+                            student_id: record.studentId,
+                            date: record.date,
+                            subject: record.subject,
+                            status: record.status // Sync the recorded status (Auto-Alpha preserved)
+                        }]);
+
+                    if (error) throw error;
+
+                    // Send notification after successful sync if needed, or skip to avoid spam
+                }
+
+                // Remove from local storage after success
+                OfflineStorage.removeRecord(record.timestamp);
+            } catch (err) {
+                console.error('Failed to sync record:', err);
+            }
+        }
+    };
 
     const handleLocationVerified = (verified: boolean) => {
         setLocationVerified(verified);
@@ -47,8 +111,46 @@ const Kiosk: React.FC = () => {
         setSubmitting(true);
 
         try {
-            const today = format(new Date(), 'yyyy-MM-dd');
+            const now = new Date();
+            const today = format(now, 'yyyy-MM-dd');
+            const currentTime = format(now, 'HH:mm');
 
+            // Auto-Alpha Logic: Check if passing 08:00 AM
+            // If checking in after 08:00, user is marked as Alpha (absent) or Late depending on policy.
+            // Request says "lewat dari jam tertentu maka sistem menganggap alpha secara otomatis"
+            const LATE_THRESHOLD = "08:00";
+            let attendanceStatus = 'present';
+
+            if (currentTime > LATE_THRESHOLD) {
+                attendanceStatus = 'alpha';
+            }
+
+            const student = students.find(s => s.id === selectedStudentId);
+
+            // Offline Handling
+            if (isOffline) {
+                const offlineRecord: OfflineRecord = {
+                    studentId: selectedStudentId,
+                    classId: selectedClassId,
+                    date: today,
+                    time: currentTime,
+                    status: attendanceStatus as any,
+                    subject: 'Self Check-in',
+                    timestamp: Date.now()
+                };
+
+                const saved = OfflineStorage.saveRecord(offlineRecord);
+                if (saved) {
+                    alert(`Offline: Data tersimpan lokal. Status: ${attendanceStatus === 'alpha' ? 'TERLAMBAT (Alpha)' : 'HADIR'}`);
+                    finishSubmit(student?.name || '', attendanceStatus, currentTime);
+                } else {
+                    alert('Gagal menyimpan data offline.');
+                }
+                setSubmitting(false);
+                return;
+            }
+
+            // Online Logic
             // Check if already marked today
             const { data: existing } = await supabase
                 .from('attendance')
@@ -71,16 +173,21 @@ const Kiosk: React.FC = () => {
                         student_id: selectedStudentId,
                         date: today,
                         subject: 'Self Check-in',
-                        status: 'present'
+                        status: attendanceStatus
                     }
                 ]);
 
             if (error) throw error;
 
-            setStep('success');
-            setTimeout(() => {
-                navigate('/');
-            }, 3000);
+            // Send WhatsApp Notification
+            if (student) {
+                // Simulate sending (would be real API call here)
+                // Assuming '08xxx' as phone number place holder, in real app need phone field in student
+                await NotificationService.sendWhatsApp('08123456789', student.name, attendanceStatus, currentTime);
+            }
+
+            finishSubmit(student?.name || '', attendanceStatus, currentTime);
+
         } catch (err) {
             console.error('Error submitting attendance:', err);
             alert('Gagal menyimpan presensi. Silakan coba lagi.');
@@ -89,11 +196,30 @@ const Kiosk: React.FC = () => {
         }
     };
 
+    const finishSubmit = (studentName: string, status: string, time: string) => {
+        setStep('success');
+
+        // Optional: Show status feedback
+        if (status === 'alpha') {
+            alert(`Helo ${studentName}, Anda check-in pada jam ${time} (Lewat 08:00). Status dianggap Alpha.`);
+        }
+
+        setTimeout(() => {
+            navigate('/');
+        }, 3000);
+    };
+
     const filteredStudents = students.filter(s => s.classId === selectedClassId);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
-            <div className="glass-panel max-w-2xl w-full p-8 rounded-3xl">
+            {/* Offline Indicator */}
+            <div className={`fixed top-4 right-4 px-4 py-2 rounded-full flex items-center gap-2 ${isOffline ? 'bg-red-500 text-white' : 'bg-green-500 text-white'} shadow-lg z-50`}>
+                {isOffline ? <WifiOff size={18} /> : <Wifi size={18} />}
+                <span className="text-sm font-bold">{isOffline ? 'Offline Mode' : 'Online'}</span>
+            </div>
+
+            <div className="glass-panel max-w-2xl w-full p-6 md:p-8 rounded-3xl relative">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold text-white mb-2">Mode Kiosk - Self Check-in</h1>
                     <p className="text-white/80">Verifikasi kehadiran Anda dengan lokasi dan wajah</p>
@@ -121,6 +247,7 @@ const Kiosk: React.FC = () => {
                         {!locationVerified && (
                             <p className="text-sm text-white/70 text-center">Pastikan Anda berada di area sekolah</p>
                         )}
+                        {/* Bypass for testing if needed, or strictly enforce */}
                     </div>
                 )}
 

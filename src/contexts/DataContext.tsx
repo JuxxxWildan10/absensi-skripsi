@@ -42,13 +42,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (studentData) {
             setStudents(studentData.map((s: any) => ({
                 ...s,
-                classId: s.class_id // map db column to frontend prop
+                classId: s.class_id, // map db column to frontend prop
+                parentPhone: s.parent_phone // map db column to frontend prop
             })));
         }
 
         const { data: teacherData } = await supabase.from('users').select('*').eq('role', 'teacher');
-        // Map user table to Teacher type (password might be there or not, doesn't matter for display)
-        if (teacherData) setTeachers(teacherData as unknown as Teacher[]);
+        if (teacherData) {
+            setTeachers(teacherData.map((t: any) => ({
+                id: t.id,
+                name: t.name,
+                username: t.username,
+                password: t.password,
+                subject: t.subject,
+                homeroomClassId: t.homeroom_class_id // Map DB column to frontend prop
+            })));
+        }
 
         const { data: scheduleData } = await supabase.from('schedules').select('*');
         if (scheduleData) {
@@ -124,12 +133,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name: student.name,
             nis: student.nis,
             gender: student.gender,
-            class_id: student.classId
+            class_id: student.classId,
+            parent_phone: student.parentPhone || null
         };
 
         const { error } = await supabase.from('students').insert(dbStudent);
-        if (!error) setStudents([...students, student]);
-        else console.error(error);
+        if (!error) {
+            setStudents([...students, student]);
+        } else {
+            console.error(error);
+            alert(`Gagal menambah siswa: ${error.message}`);
+        }
     };
 
     const deleteStudent = async (id: string) => {
@@ -145,12 +159,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             password: teacher.password,
             name: teacher.name,
             role: 'teacher',
-            subject: teacher.subject
+            subject: teacher.subject,
+            homeroom_class_id: teacher.homeroomClassId || null // Save to DB
         };
 
         const { error } = await supabase.from('users').insert(dbUser);
-        if (!error) setTeachers([...teachers, teacher]);
-        else console.error(error);
+        if (!error) {
+            setTeachers([...teachers, teacher]);
+        } else {
+            console.error(error);
+            alert(`Gagal menambah guru: ${error.message}. Pastikan kolom 'homeroom_class_id' ada di tabel 'users'.`);
+        }
     };
 
     const deleteTeacher = async (id: string) => {
