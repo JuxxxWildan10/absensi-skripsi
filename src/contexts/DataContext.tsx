@@ -10,12 +10,16 @@ interface DataContextType {
     attendance: AttendanceRecord[];
 
     addClass: (cls: Class) => Promise<void>;
+    updateClass: (cls: Class) => Promise<void>;
     deleteClass: (id: string) => Promise<void>;
 
     addStudent: (student: Student) => Promise<void>;
+    bulkAddStudents: (students: Student[]) => Promise<boolean>;
+    updateStudent: (student: Student) => Promise<void>;
     deleteStudent: (id: string) => Promise<void>;
 
     addTeacher: (teacher: Teacher) => Promise<void>;
+    updateTeacher: (teacher: Teacher) => Promise<void>;
     deleteTeacher: (id: string) => Promise<void>;
 
     addSchedule: (schedule: Schedule) => Promise<void>;
@@ -116,18 +120,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { error } = await supabase.from('classes').insert(cls);
         if (!error) setClasses([...classes, cls]);
     };
+    const updateClass = async (cls: Class) => {
+        const { error } = await supabase.from('classes').update({ name: cls.name }).eq('id', cls.id);
+        if (!error) setClasses(classes.map(c => c.id === cls.id ? cls : c));
+        else { console.error(error); alert(`Gagal mengupdate kelas: ${error.message}`); }
+    };
     const deleteClass = async (id: string) => {
         const { error } = await supabase.from('classes').delete().eq('id', id);
         if (!error) setClasses(classes.filter(c => c.id !== id));
     };
 
     const addStudent = async (student: Student) => {
-        // Map frontend model to DB columns if needed (here they match: classId -> class_id)
-        // Wait, in schema I used class_id but in types I used classId.
-        // I must map them or update types. 
-        // Supabase is smart but let's be explicit or ensure Types match DB.
-        // For simplicity in this overwrite, I will map the payload.
-
         const dbStudent = {
             id: student.id,
             name: student.name,
@@ -144,6 +147,40 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error(error);
             alert(`Gagal menambah siswa: ${error.message}`);
         }
+    };
+
+    const bulkAddStudents = async (newStudents: Student[]): Promise<boolean> => {
+        const dbStudents = newStudents.map(s => ({
+            id: s.id,
+            name: s.name,
+            nis: s.nis,
+            gender: s.gender,
+            class_id: s.classId,
+            parent_phone: s.parentPhone || null
+        }));
+
+        const { error } = await supabase.from('students').insert(dbStudents);
+        if (!error) {
+            setStudents(prev => [...prev, ...newStudents]);
+            return true;
+        } else {
+            console.error('Bulk insert error:', error);
+            alert(`Gagal mengimpor siswa: ${error.message}`);
+            return false;
+        }
+    };
+
+    const updateStudent = async (student: Student) => {
+        const dbStudent = {
+            name: student.name,
+            nis: student.nis,
+            gender: student.gender,
+            class_id: student.classId,
+            parent_phone: student.parentPhone || null
+        };
+        const { error } = await supabase.from('students').update(dbStudent).eq('id', student.id);
+        if (!error) setStudents(students.map(s => s.id === student.id ? student : s));
+        else { console.error(error); alert(`Gagal mengupdate siswa: ${error.message}`); }
     };
 
     const deleteStudent = async (id: string) => {
@@ -170,6 +207,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error(error);
             alert(`Gagal menambah guru: ${error.message}. Pastikan kolom 'homeroom_class_id' ada di tabel 'users'.`);
         }
+    };
+
+    const updateTeacher = async (teacher: Teacher) => {
+        const dbUser = {
+            username: teacher.username,
+            name: teacher.name,
+            subject: teacher.subject,
+            homeroom_class_id: teacher.homeroomClassId || null
+        };
+        const { error } = await supabase.from('users').update(dbUser).eq('id', teacher.id);
+        if (!error) setTeachers(teachers.map(t => t.id === teacher.id ? teacher : t));
+        else { console.error(error); alert(`Gagal mengupdate guru: ${error.message}`); }
     };
 
     const deleteTeacher = async (id: string) => {
@@ -230,9 +279,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return (
         <DataContext.Provider value={{
             students, classes, teachers, schedules, attendance,
-            addClass, deleteClass,
-            addStudent, deleteStudent,
-            addTeacher, deleteTeacher,
+            addClass, updateClass, deleteClass,
+            addStudent, bulkAddStudents, updateStudent, deleteStudent,
+            addTeacher, updateTeacher, deleteTeacher,
             addSchedule, deleteSchedule,
             addAttendance, getAttendanceByDateClassAndSubject
         }}>

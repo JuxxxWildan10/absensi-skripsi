@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Users, GraduationCap, ClipboardCheck, FileBarChart, LogOut, UserCog, CalendarClock, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, GraduationCap, ClipboardCheck, FileBarChart, LogOut, UserCog, CalendarClock, Menu, X, KeyRound } from 'lucide-react';
 import clsx from 'clsx';
+import ChangePasswordModal from './ChangePasswordModal';
 
 const Layout: React.FC = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
     const handleLogout = () => {
         logout();
@@ -34,7 +36,7 @@ const Layout: React.FC = () => {
         isHomeroomMenu: true
     } : null;
 
-    let filteredNavItems = navItems.filter(item =>
+    const filteredNavItems = navItems.filter(item =>
         user?.role && item.roles.includes(user.role)
     );
 
@@ -104,18 +106,27 @@ const Layout: React.FC = () => {
                 </nav>
 
                 <div className="p-4 border-t border-gray-100 bg-white">
-                    <div className="flex items-center gap-3 px-4 py-3 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shrink-0">
+                    <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-gray-50/50 rounded-xl border border-gray-100">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shrink-0 shadow-sm border-2 border-white">
                             {user?.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 overflow-hidden">
-                            <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-                            <p className="text-xs text-gray-500 capitalize truncate">{user?.role} {user?.subject ? ` - ${user.subject}` : ''}</p>
+                            <p className="text-sm font-bold text-gray-900 truncate">{user?.name}</p>
+                            <p className="text-xs text-gray-500 capitalize truncate font-medium">{user?.role} {user?.subject ? ` - ${user.subject}` : ''}</p>
                         </div>
                     </div>
+
+                    <button
+                        onClick={() => setIsPasswordModalOpen(true)}
+                        className="w-full mb-1 flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                    >
+                        <KeyRound className="w-4 h-4 text-gray-500" />
+                        Ganti Password
+                    </button>
+
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
                     >
                         <LogOut className="w-4 h-4" />
                         Keluar
@@ -132,6 +143,11 @@ const Layout: React.FC = () => {
                     </div>
                 </div>
             </main>
+
+            <ChangePasswordModal
+                isOpen={isPasswordModalOpen}
+                onClose={() => setIsPasswordModalOpen(false)}
+            />
         </div>
     );
 };

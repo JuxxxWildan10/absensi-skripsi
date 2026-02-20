@@ -53,6 +53,8 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) =
     useEffect(() => {
         if (!modelsLoaded) return;
 
+        const currentVideoRef = videoRef.current;
+
         const startVideo = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
@@ -63,11 +65,10 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) =
                     }
                 });
 
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
+                if (currentVideoRef) {
+                    currentVideoRef.srcObject = stream;
                 }
             } catch (err) {
-                console.error('Error accessing camera:', err);
                 console.error('Error accessing camera:', err);
                 setError('Gagal mengakses kamera. Izinkan akses kamera di browser Anda.');
                 setStatus('error');
@@ -78,8 +79,8 @@ const FaceVerification: React.FC<FaceVerificationProps> = ({ onFaceDetected }) =
 
         return () => {
             // Cleanup: stop all video streams
-            if (videoRef.current && videoRef.current.srcObject) {
-                const stream = videoRef.current.srcObject as MediaStream;
+            if (currentVideoRef && currentVideoRef.srcObject) {
+                const stream = currentVideoRef.srcObject as MediaStream;
                 stream.getTracks().forEach(track => track.stop());
             }
         };

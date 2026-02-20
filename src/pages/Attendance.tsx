@@ -22,7 +22,7 @@ const Attendance: React.FC = () => {
         if (classes.length > 0 && !selectedClassId) {
             setSelectedClassId(classes[0].id);
         }
-    }, [classes]);
+    }, [classes, selectedClassId]);
 
     // Derived: Get Day Name from Date (Senin, Selasa, etc)
     const dayName = useMemo(() => {

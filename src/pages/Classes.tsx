@@ -1,22 +1,38 @@
 import React, { useState } from 'react';
 import { useData } from '../contexts/DataContext';
-import { Plus, Trash2, Pencil, Search, BookOpen } from 'lucide-react';
+import { Plus, Trash2, BookOpen, Edit2 } from 'lucide-react';
 import { Class } from '../types';
 
 const Classes: React.FC = () => {
-    const { classes, addClass, deleteClass } = useData();
+    const { classes, addClass, updateClass, deleteClass } = useData();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [newClassName, setNewClassName] = useState('');
+    const [editingClass, setEditingClass] = useState<Class | null>(null);
+    const [classNameInput, setClassNameInput] = useState('');
 
-    const handleAddClass = (e: React.FormEvent) => {
+    const openAddModal = () => {
+        setEditingClass(null);
+        setClassNameInput('');
+        setIsModalOpen(true);
+    };
+
+    const openEditModal = (cls: Class) => {
+        setEditingClass(cls);
+        setClassNameInput(cls.name);
+        setIsModalOpen(true);
+    };
+
+    const handleSaveClass = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newClassName.trim()) return;
+        if (!classNameInput.trim()) return;
 
-        addClass({
-            id: crypto.randomUUID(),
-            name: newClassName
-        });
-        setNewClassName('');
+        if (editingClass) {
+            updateClass({ ...editingClass, name: classNameInput });
+        } else {
+            addClass({
+                id: crypto.randomUUID(),
+                name: classNameInput
+            });
+        }
         setIsModalOpen(false);
     };
 
@@ -28,7 +44,7 @@ const Classes: React.FC = () => {
                     <p className="text-gray-500">Kelola daftar kelas di sekolah</p>
                 </div>
                 <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={openAddModal}
                     className="btn-primary flex items-center gap-2"
                 >
                     <Plus className="w-4 h-4" />
@@ -39,7 +55,13 @@ const Classes: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {classes.map((cls) => (
                     <div key={cls.id} className="glass-panel p-6 rounded-2xl group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                            <button
+                                onClick={() => openEditModal(cls)}
+                                className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                            >
+                                <Edit2 className="w-4 h-4" />
+                            </button>
                             <button
                                 onClick={() => { if (confirm('Hapus kelas ini?')) deleteClass(cls.id) }}
                                 className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
@@ -55,7 +77,6 @@ const Classes: React.FC = () => {
                         </div>
                         <div className="flex items-center justify-between text-sm text-gray-500">
                             <span>ID: {cls.id.slice(0, 8)}</span>
-                            {/* Could add student count here if available */}
                         </div>
                     </div>
                 ))}
@@ -72,8 +93,8 @@ const Classes: React.FC = () => {
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <h2 className="text-xl font-bold mb-4">Tambah Kelas Baru</h2>
-                        <form onSubmit={handleAddClass}>
+                        <h2 className="text-xl font-bold mb-4">{editingClass ? 'Edit Kelas' : 'Tambah Kelas Baru'}</h2>
+                        <form onSubmit={handleSaveClass}>
                             <div className="mb-6">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Nama Kelas</label>
                                 <input
@@ -81,8 +102,8 @@ const Classes: React.FC = () => {
                                     required
                                     placeholder="Contoh: X IPA 1"
                                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                    value={newClassName}
-                                    onChange={(e) => setNewClassName(e.target.value)}
+                                    value={classNameInput}
+                                    onChange={(e) => setClassNameInput(e.target.value)}
                                     autoFocus
                                 />
                             </div>

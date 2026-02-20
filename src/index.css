@@ -15,10 +15,11 @@ body {
 
 @layer components {
   .glass-panel {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+    @apply bg-white/70 backdrop-blur-lg border border-white/50 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl;
   }
+
   .btn-primary {
-    @apply px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg active:scale-95;
+    @apply px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300 active:translate-y-0 active:scale-95 flex justify-center items-center;
   }
 }
 
@@ -28,6 +29,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -37,4 +39,3 @@ body {
 .animate-slide-up {
   animation: slide-up 0.3s ease-out;
 }
-

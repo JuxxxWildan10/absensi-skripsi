@@ -1,0 +1,111 @@
+[0m[0m
+[0m[4mD:\ABSENSI\src\App.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\components\InstallPrompt.tsx[24m[0m
+[0m   [2m1:1[22m   [31merror[39m    Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m73:33[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\components\Layout.tsx[24m[0m
+[0m   [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m37:9[22m  [31merror[39m  'filteredNavItems' is never reassigned. Use 'const' instead               [2mprefer-const[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\components\LoadingSpinner.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\components\QRCodeKiosk.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\components\dashboard\AttendanceChart.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\components\kiosk\FaceVerification.tsx[24m[0m
+[0m   [2m1:1[22m   [31merror[39m    Definition for rule 'react-refresh/only-export-components' was not found                                                                                                                                                                                         [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m82:41[22m  [33mwarning[39m  The ref value 'videoRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'videoRef.current' to a variable inside the effect, and use that variable in the cleanup function  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\components\kiosk\LocationGuard.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\contexts\AuthContext.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\contexts\DataContext.tsx[24m[0m
+[0m   [2m1:1[22m   [31merror[39m    Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m43:45[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m52:45[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m64:47[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m75:50[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m94:54[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\lib\supabase.ts[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\main.tsx[24m[0m
+[0m   [2m1:1[22m   [31merror[39m    Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m   [2m7:12[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m13:12[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m23:20[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m27:28[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m28:28[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m43:28[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m44:28[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m55:16[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\pages\Attendance.tsx[24m[0m
+[0m    [2m1:1[22m    [31merror[39m    Definition for rule 'react-refresh/only-export-components' was not found                                            [2mreact-refresh/only-export-components[22m[0m
+[0m   [2m25:8[22m    [33mwarning[39m  React Hook useEffect has a missing dependency: 'selectedClassId'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m   [2m57:47[22m   [33mwarning[39m  Unexpected any. Specify a different type                                                                            [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m201:120[22m  [33mwarning[39m  Unexpected any. Specify a different type                                                                            [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\pages\Classes.tsx[24m[0m
+[0m  [2m1:1[22m   [31merror[39m    Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m3:24[22m  [33mwarning[39m  'Pencil' is defined but never used                                        [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m  [2m3:32[22m  [33mwarning[39m  'Search' is defined but never used                                        [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m  [2m4:10[22m  [33mwarning[39m  'Class' is defined but never used                                         [2m@typescript-eslint/no-unused-vars[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\pages\Dashboard.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\pages\Kiosk.tsx[24m[0m
+[0m    [2m1:1[22m   [31merror[39m    Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m137:49[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m191:23[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\pages\Login.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\pages\Reports.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\pages\Schedules.tsx[24m[0m
+[0m    [2m1:1[22m    [31merror[39m    Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m119:181[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\pages\Students.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\pages\Teachers.tsx[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\types\index.ts[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\utils\ExportUtils.ts[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\utils\NotificationService.ts[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\utils\OfflineStorage.ts[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\src\vite-env.d.ts[24m[0m
+[0m  [2m1:1[22m  [31merror[39m  Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ABSENSI\vite.config.ts[24m[0m
+[0m  [2m1:1[22m   [31merror[39m    Definition for rule 'react-refresh/only-export-components' was not found  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m7:34[22m  [33mwarning[39m  Unexpected any. Specify a different type                                  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[31m[1m✖ 53 problems (28 errors, 25 warnings)[22m[39m[0m
+[0m[31m[1m[22m[39m[31m[1m  1 error and 0 warnings potentially fixable with the `--fix` option.[22m[39m[0m
+[0m[31m[1m[22m[39m[0m

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useData } from '../contexts/DataContext';
-import { Plus, Trash2, UserPlus } from 'lucide-react';
+import { Plus, Trash2, UserPlus, Edit2 } from 'lucide-react';
+import { Teacher } from '../types';
 
 const Teachers: React.FC = () => {
-    const { teachers, classes, addTeacher, deleteTeacher } = useData();
+    const { teachers, classes, addTeacher, updateTeacher, deleteTeacher } = useData();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
+
     const [formData, setFormData] = useState({
         name: '',
         username: '',
@@ -13,15 +16,45 @@ const Teachers: React.FC = () => {
         homeroomClassId: ''
     });
 
-    const handleAddTeacher = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!formData.username || !formData.password) return;
-
-        addTeacher({
-            id: crypto.randomUUID(),
-            ...formData
-        });
+    const openAddModal = () => {
+        setEditingTeacher(null);
         setFormData({ name: '', username: '', password: '', subject: '', homeroomClassId: '' });
+        setIsModalOpen(true);
+    };
+
+    const openEditModal = (teacher: Teacher) => {
+        setEditingTeacher(teacher);
+        setFormData({
+            name: teacher.name,
+            username: teacher.username,
+            password: '', // Don't prepopulate password on edit for security
+            subject: teacher.subject,
+            homeroomClassId: teacher.homeroomClassId || ''
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleSaveTeacher = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (editingTeacher) {
+            // Username and name are required, password only required on new
+            if (!formData.username || !formData.name) return;
+            updateTeacher({
+                ...editingTeacher,
+                name: formData.name,
+                username: formData.username,
+                subject: formData.subject,
+                homeroomClassId: formData.homeroomClassId || undefined
+            });
+        } else {
+            if (!formData.username || !formData.password || !formData.name) return;
+            addTeacher({
+                id: crypto.randomUUID(),
+                ...formData,
+                homeroomClassId: formData.homeroomClassId || undefined
+            });
+        }
         setIsModalOpen(false);
     };
 
@@ -33,7 +66,7 @@ const Teachers: React.FC = () => {
                     <p className="text-gray-500">Kelola akun guru dan mata pelajaran</p>
                 </div>
                 <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={openAddModal}
                     className="btn-primary flex items-center gap-2"
                 >
                     <Plus className="w-4 h-4" />
@@ -76,6 +109,12 @@ const Teachers: React.FC = () => {
                                     </td>
                                     <td className="p-4 text-right">
                                         <button
+                                            onClick={() => openEditModal(teacher)}
+                                            className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors mr-2"
+                                        >
+                                            <Edit2 className="w-4 h-4" />
+                                        </button>
+                                        <button
                                             onClick={() => { if (confirm('Hapus akun guru ini?')) deleteTeacher(teacher.id) }}
                                             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                         >
@@ -95,7 +134,7 @@ const Teachers: React.FC = () => {
                 </div>
             </div>
 
-            {/* Add Teacher Modal */}
+            {/* Add/Edit Teacher Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
@@ -103,10 +142,10 @@ const Teachers: React.FC = () => {
                             <div className="p-2 bg-indigo-100 rounded-lg">
                                 <UserPlus className="w-6 h-6 text-indigo-600" />
                             </div>
-                            <h2 className="text-xl font-bold">Tambah Akun Guru</h2>
+                            <h2 className="text-xl font-bold">{editingTeacher ? 'Edit Akun Guru' : 'Tambah Akun Guru'}</h2>
                         </div>
 
-                        <form onSubmit={handleAddTeacher} className="space-y-4">
+                        <form onSubmit={handleSaveTeacher} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium mb-1">Nama Lengkap</label>
                                 <input
@@ -138,17 +177,19 @@ const Teachers: React.FC = () => {
                                         onChange={e => setFormData({ ...formData, username: e.target.value })}
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Password</label>
-                                    <input
-                                        required
-                                        type="text"
-                                        className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                        placeholder="Password login"
-                                        value={formData.password}
-                                        onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                    />
-                                </div>
+                                {!editingTeacher && (
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Password</label>
+                                        <input
+                                            required
+                                            type="text"
+                                            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                            placeholder="Password login"
+                                            value={formData.password}
+                                            onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                        />
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium mb-1">Wali Kelas (Opsional)</label>
